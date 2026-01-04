@@ -97,15 +97,14 @@ class LayananPublicController extends Controller
             'kode_desa' => 'required',
             'no_pengantar' => 'required',
             'tgl_pengantar' => 'required|date',
-            'tujuan' => 'required',
-            'peruntukan' => 'required',
+            'peruntukan' => 'required|string',
             'penghasilan' => 'required|numeric',
             'tanggungan' => 'required|numeric',
             
             'ktp' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'kk' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'pengantar' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'pernyataan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'pernyataan' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         $files = $this->uploadFiles($request, ['ktp', 'kk', 'pengantar', 'pernyataan']);
@@ -118,7 +117,9 @@ class LayananPublicController extends Controller
             'kode_desa' => $validated['kode_desa'],
             'no_pengantar' => $validated['no_pengantar'],
             'tgl_pengantar' => $validated['tgl_pengantar'],
-            'tujuan' => "{$validated['peruntukan']} (Penghasilan: Rp {$validated['penghasilan']}, Tanggungan: {$validated['tanggungan']})",
+            'peruntukan' => $validated['peruntukan'],
+            'penghasilan' => $validated['penghasilan'],
+            'tanggungan' => $validated['tanggungan'],
             'user_id' => auth()->id(),
             'status' => 'pending',
         ];

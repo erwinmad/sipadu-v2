@@ -10,9 +10,7 @@ import {
 } from "@/components/ui/select";
 import { useForm } from '@inertiajs/react';
 import { Upload, X, Info, MapPin, Calendar, Hash, Home } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
-import { store } from '@/actions/App/Http/Controllers/LayananPublicController';
-import ReviewModal from '@/components/ReviewModal';
+import { FormEventHandler } from 'react';
 
 interface Desa {
     id: string;
@@ -44,36 +42,14 @@ export default function DomisiliForm({ slug, kecamatans, onSuccess }: DomisiliFo
         pengantar: null as File | null,
     });
 
-    const [showReview, setShowReview] = useState(false);
-    const [reviewData, setReviewData] = useState<any>({});
-
-    const handleSubmitForReview: FormEventHandler = (e) => {
+    const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        
-        // Get kecamatan and desa names for display
-        const kecamatan = kecamatans.find(k => k.id === data.kode_kecamatan);
-        const desa = kecamatan?.desas.find(d => d.id === data.kode_desa);
-        
-        setReviewData({
-            ...data,
-            kecamatan_name: kecamatan?.nama_kecamatan,
-            desa_name: desa?.nama_desa,
-        });
-        setShowReview(true);
-    };
-
-    const handleConfirmSubmit = () => {
-        post(store.url(slug), {
+        post(`/layanan/${slug}`, {
             onSuccess: () => {
                 reset();
-                setShowReview(false);
                 if (onSuccess) onSuccess();
             },
         });
-    };
-
-    const handleEditData = () => {
-        setShowReview(false);
     };
 
     return (

@@ -1,7 +1,8 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { ArrowLeft, FileText, User, MapPin, CheckCircle2, XCircle, Clock, Download, Shield, Hash, Home, Mail, Heart, Building2, DollarSign, History } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { ArrowLeft, FileText, User, MapPin, CheckCircle2, XCircle, Clock, Download, Shield, Hash, Home, Mail, Heart, Building2, DollarSign, History, Eye, X } from 'lucide-react';
+import { FormEventHandler, useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Permohonan {
     id: number;
@@ -127,6 +128,8 @@ const DOCUMENT_CONFIGS: Record<string, Record<string, string>> = {
 };
 
 export default function Show({ permohonan, jenis, activities }: PageProps) {
+    const [viewingDoc, setViewingDoc] = useState<{ label: string; url: string } | null>(null);
+    
     const { data, setData, post, processing, errors } = useForm({
         status: permohonan.status,
         tanggapan: permohonan.tanggapan || '',
@@ -180,6 +183,10 @@ export default function Show({ permohonan, jenis, activities }: PageProps) {
             }
         });
         return docs;
+    };
+
+    const handleViewDocument = (label: string, path: string) => {
+        setViewingDoc({ label, url: `/storage/${path}` });
     };
 
     return (
@@ -290,37 +297,21 @@ export default function Show({ permohonan, jenis, activities }: PageProps) {
                                 </div>
                                 <div className="grid gap-2 md:grid-cols-2">
                                     {getDocumentFields().map((doc, idx) => (
-                                        <a key={idx} href={`/storage/${doc.value}`} target="_blank" rel="noopener noreferrer"
-                                            className="flex items-center justify-between rounded border border-emerald-200 bg-emerald-50 p-3 transition hover:border-emerald-400">
-                                            <span className="text-xs font-bold text-emerald-900">{doc.label}</span>
-                                            <Download className="h-4 w-4 text-emerald-600" />
-                                        </a>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Timeline */}
-                        {activities && activities.length > 0 && (
-                            <div className="rounded-lg border border-slate-200 bg-white p-4">
-                                <div className="mb-3 flex items-center gap-2 border-b border-slate-100 pb-2">
-                                    <History className="h-4 w-4 text-indigo-600" />
-                                    <h3 className="text-sm font-bold uppercase text-slate-900">Riwayat</h3>
-                                </div>
-                                <div className="space-y-2">
-                                    {activities.map((activity) => (
-                                        <div key={activity.id} className="flex gap-3 border-l-4 border-emerald-500 bg-slate-50 p-3 rounded-r">
-                                            <div className="flex-1">
-                                                <div className="text-sm font-bold text-slate-900">{activity.description}</div>
-                                                {activity.causer && (
-                                                    <div className="mt-1 text-xs font-medium text-slate-600">👤 {activity.causer.name}</div>
-                                                )}
-                                                <div className="mt-1 text-xs text-slate-500">
-                                                    🕒 {new Date(activity.created_at).toLocaleString('id-ID', {
-                                                        day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                                                    })}
-                                                </div>
-                                            </div>
+                                        <div key={idx} className="flex gap-2">
+                                            <button
+                                                onClick={() => handleViewDocument(doc.label, doc.value)}
+                                                className="flex flex-1 items-center justify-between rounded border border-blue-200 bg-blue-50 p-3 transition hover:border-blue-400 hover:bg-blue-100"
+                                            >
+                                                <span className="text-xs font-bold text-blue-900">{doc.label}</span>
+                                                <Eye className="h-4 w-4 text-blue-600" />
+                                            </button>
+                                            <a
+                                                href={`/storage/${doc.value}`}
+                                                download
+                                                className="flex items-center justify-center rounded border border-emerald-200 bg-emerald-50 p-3 transition hover:border-emerald-400 hover:bg-emerald-100"
+                                            >
+                                                <Download className="h-4 w-4 text-emerald-600" />
+                                            </a>
                                         </div>
                                     ))}
                                 </div>
@@ -328,61 +319,125 @@ export default function Show({ permohonan, jenis, activities }: PageProps) {
                         )}
                     </div>
 
-                    {/* Action Form */}
-                    <div className="lg:col-span-1">
-                        <div className="sticky top-6 rounded-lg border border-slate-200 bg-white p-5">
-                            <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
-                                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                                <h2 className="text-lg font-bold text-slate-900">Tindak Lanjut</h2>
+                    {/* Action Form & Timeline */}
+                    <div className="lg:col-span-1 space-y-4">
+                        <div className="sticky top-6 space-y-4">
+                            {/* Action Form */}
+                            <div className="rounded-lg border border-slate-200 bg-white p-5">
+                                <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+                                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                                    <h2 className="text-lg font-bold text-slate-900">Tindak Lanjut</h2>
+                                </div>
+                                
+                                <form onSubmit={submit} className="space-y-4">
+                                    <div>
+                                        <label className="mb-2 block text-xs font-bold uppercase text-slate-700">Status</label>
+                                        <select value={data.status} onChange={(e) => setData('status', e.target.value)}
+                                            className="w-full rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20">
+                                            <option value="pending">⏳ Pending</option>
+                                            <option value="proses">📋 Proses</option>
+                                            <option value="selesai">✅ Selesai</option>
+                                            <option value="ditolak">❌ Ditolak</option>
+                                        </select>
+                                        {errors.status && <p className="mt-1 text-xs font-bold text-red-600">{errors.status}</p>}
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-xs font-bold uppercase text-slate-700">Tanggapan</label>
+                                        <textarea value={data.tanggapan} onChange={(e) => setData('tanggapan', e.target.value)} rows={4}
+                                            placeholder="Berikan tanggapan..."
+                                            className="w-full rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" />
+                                        {errors.tanggapan && <p className="mt-1 text-xs font-bold text-red-600">{errors.tanggapan}</p>}
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-xs font-bold uppercase text-slate-700">File Hasil</label>
+                                        {permohonan.file_hasil && (
+                                            <div className="mb-3 rounded border border-emerald-300 bg-emerald-50 p-3">
+                                                <a href={`/storage/${permohonan.file_hasil}`} target="_blank" rel="noopener noreferrer"
+                                                    className="flex items-center justify-between text-xs font-bold text-emerald-700 hover:text-emerald-900">
+                                                    <span>📄 File Tersedia</span>
+                                                    <Download className="h-4 w-4" />
+                                                </a>
+                                            </div>
+                                        )}
+                                        <input type="file" accept=".pdf" onChange={(e) => setData('file_hasil', e.target.files?.[0] || null)}
+                                            className="w-full rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-emerald-600 file:px-3 file:py-1 file:text-xs file:font-bold file:text-white hover:file:bg-emerald-700" />
+                                        <p className="mt-2 text-xs text-slate-500">📎 PDF, Max: 5MB</p>
+                                        {errors.file_hasil && <p className="mt-1 text-xs font-bold text-red-600">{errors.file_hasil}</p>}
+                                    </div>
+
+                                    <button type="submit" disabled={processing}
+                                        className="w-full rounded-lg bg-emerald-600 px-4 py-3 text-sm font-bold uppercase text-white shadow transition hover:bg-emerald-700 disabled:opacity-50">
+                                        {processing ? '⏳ Menyimpan...' : '💾 Simpan'}
+                                    </button>
+                                </form>
                             </div>
-                            
-                            <form onSubmit={submit} className="space-y-4">
-                                <div>
-                                    <label className="mb-2 block text-xs font-bold uppercase text-slate-700">Status</label>
-                                    <select value={data.status} onChange={(e) => setData('status', e.target.value)}
-                                        className="w-full rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20">
-                                        <option value="pending">⏳ Pending</option>
-                                        <option value="proses">📋 Proses</option>
-                                        <option value="selesai">✅ Selesai</option>
-                                        <option value="ditolak">❌ Ditolak</option>
-                                    </select>
-                                    {errors.status && <p className="mt-1 text-xs font-bold text-red-600">{errors.status}</p>}
-                                </div>
 
-                                <div>
-                                    <label className="mb-2 block text-xs font-bold uppercase text-slate-700">Tanggapan</label>
-                                    <textarea value={data.tanggapan} onChange={(e) => setData('tanggapan', e.target.value)} rows={4}
-                                        placeholder="Berikan tanggapan..."
-                                        className="w-full rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" />
-                                    {errors.tanggapan && <p className="mt-1 text-xs font-bold text-red-600">{errors.tanggapan}</p>}
+                            {/* Timeline */}
+                            {activities && activities.length > 0 && (
+                                <div className="rounded-lg border border-slate-200 bg-white p-4">
+                                    <div className="mb-3 flex items-center gap-2 border-b border-slate-100 pb-2">
+                                        <History className="h-4 w-4 text-indigo-600" />
+                                        <h3 className="text-sm font-bold uppercase text-slate-900">Riwayat</h3>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {activities.map((activity) => (
+                                            <div key={activity.id} className="flex gap-3 border-l-4 border-emerald-500 bg-slate-50 p-3 rounded-r">
+                                                <div className="flex-1">
+                                                    <div className="text-sm font-bold text-slate-900">{activity.description}</div>
+                                                    {activity.causer && (
+                                                        <div className="mt-1 text-xs font-medium text-slate-600">👤 {activity.causer.name}</div>
+                                                    )}
+                                                    <div className="mt-1 text-xs text-slate-500">
+                                                        🕒 {new Date(activity.created_at).toLocaleString('id-ID', {
+                                                            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-
-                                <div>
-                                    <label className="mb-2 block text-xs font-bold uppercase text-slate-700">File Hasil</label>
-                                    {permohonan.file_hasil && (
-                                        <div className="mb-3 rounded border border-emerald-300 bg-emerald-50 p-3">
-                                            <a href={`/storage/${permohonan.file_hasil}`} target="_blank" rel="noopener noreferrer"
-                                                className="flex items-center justify-between text-xs font-bold text-emerald-700 hover:text-emerald-900">
-                                                <span>📄 File Tersedia</span>
-                                                <Download className="h-4 w-4" />
-                                            </a>
-                                        </div>
-                                    )}
-                                    <input type="file" accept=".pdf" onChange={(e) => setData('file_hasil', e.target.files?.[0] || null)}
-                                        className="w-full rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-emerald-600 file:px-3 file:py-1 file:text-xs file:font-bold file:text-white hover:file:bg-emerald-700" />
-                                    <p className="mt-2 text-xs text-slate-500">📎 PDF, Max: 5MB</p>
-                                    {errors.file_hasil && <p className="mt-1 text-xs font-bold text-red-600">{errors.file_hasil}</p>}
-                                </div>
-
-                                <button type="submit" disabled={processing}
-                                    className="w-full rounded-lg bg-emerald-600 px-4 py-3 text-sm font-bold uppercase text-white shadow transition hover:bg-emerald-700 disabled:opacity-50">
-                                    {processing ? '⏳ Menyimpan...' : '💾 Simpan'}
-                                </button>
-                            </form>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Document Viewer Modal */}
+            <Dialog open={!!viewingDoc} onOpenChange={() => setViewingDoc(null)}>
+                <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+                    <DialogHeader className="p-6 pb-4 border-b">
+                        <div className="flex items-center justify-between">
+                            <DialogTitle className="text-lg font-bold">{viewingDoc?.label}</DialogTitle>
+                            <button
+                                onClick={() => setViewingDoc(null)}
+                                className="rounded-lg p-2 hover:bg-slate-100 transition"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                    </DialogHeader>
+                    <div className="p-6 overflow-auto max-h-[calc(90vh-100px)]">
+                        {viewingDoc && (
+                            viewingDoc.url.endsWith('.pdf') ? (
+                                <iframe
+                                    src={viewingDoc.url}
+                                    className="w-full h-[600px] border-0"
+                                    title={viewingDoc.label}
+                                />
+                            ) : (
+                                <img
+                                    src={viewingDoc.url}
+                                    alt={viewingDoc.label}
+                                    className="w-full h-auto rounded"
+                                />
+                            )
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }

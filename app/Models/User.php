@@ -56,4 +56,15 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Kecamatan::class, 'kode_kecamatan', 'id');
     }
+
+    public function detailUser()
+    {
+        return $this->hasOne(DetailUser::class);
+    }
+
+    // Helper method to check profile completion
+    public function hasCompleteProfile()
+    {
+        return $this->detailUser && $this->detailUser->isComplete();
+    }
 }

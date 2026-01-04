@@ -18,9 +18,6 @@ return new class extends Migration
             $table->uuid('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             
-            $table->string('kode_kecamatan')->nullable();
-            $table->foreign('kode_kecamatan')->references('id')->on('kecamatans');
-
             $table->string('kode_desa')->nullable();
             
             $table->string('no_pengantar');
