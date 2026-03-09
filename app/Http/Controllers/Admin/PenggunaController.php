@@ -63,6 +63,7 @@ class PenggunaController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'kode_kecamatan' => $request->role === 'kecamatan' ? $request->kode_kecamatan : null,
+            'email_verified_at' => in_array($request->role, ['superadmin', 'kecamatan']) ? now() : null,
         ]);
 
         $user->assignRole($request->role);

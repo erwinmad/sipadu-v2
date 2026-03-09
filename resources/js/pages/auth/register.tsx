@@ -16,7 +16,17 @@ export default function Register() {
             title="Create an account"
             description="Enter your details below to create your account"
         >
-            <Head title="Register" />
+            <Head>
+                <title>Daftar Akun Baru - SIPADU Kabupaten Cianjur</title>
+                <meta name="description" content="Buat akun SIPADU untuk mengakses layanan administrasi publik Kabupaten Cianjur secara online. Daftar gratis dan mulai ajukan dokumen dari rumah." />
+                <meta name="robots" content="index, follow" />
+                
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://sipadu.cianjurkab.go.id/register" />
+                <meta property="og:title" content="Daftar Akun Baru - SIPADU Kabupaten Cianjur" />
+                <meta property="og:description" content="Registrasi akun SIPADU Kabupaten Cianjur untuk layanan administrasi publik online." />
+                <meta property="og:image" content="https://sipadu.cianjurkab.go.id/logo/sugih-mukti.png" />
+            </Head>
             <Form
                 {...store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}

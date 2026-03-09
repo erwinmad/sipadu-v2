@@ -32,7 +32,7 @@ class SocialiteController extends Controller
 
             // Assign default 'user' role if no role exists
             if (!$user->hasAnyRole()) {
-                $user->assignRole('user');
+                $user->assignRole(\App\Enums\EnumRoles::USER->value);
             }
 
             Auth::login($user);

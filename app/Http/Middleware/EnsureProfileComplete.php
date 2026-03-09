@@ -27,6 +27,19 @@ class EnsureProfileComplete
                 ->with('warning', 'Silakan lengkapi profil Anda terlebih dahulu sebelum mengajukan layanan.');
         }
 
+        // Check if profile is verified by admin kecamatan
+        $detailUser = $user->detailUser;
+        if ($detailUser && !$detailUser->isVerified()) {
+            $message = $detailUser->isRejected()
+                ? 'Profil Anda ditolak oleh admin kecamatan. Silakan perbaiki data dan upload ulang dokumen Anda.'
+                : 'Profil Anda sedang menunggu verifikasi oleh admin kecamatan. Anda akan diberitahu setelah profil diverifikasi.';
+
+            return redirect()->route('profile.complete')
+                ->with('verification_status', $detailUser->verification_status)
+                ->with('verification_note', $detailUser->verification_note)
+                ->with('warning', $message);
+        }
+
         return $next($request);
     }
 }

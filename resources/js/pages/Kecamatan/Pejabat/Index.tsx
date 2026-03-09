@@ -1,8 +1,9 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, UserCheck, UserX, FileSignature } from 'lucide-react';
+import { Plus, Pencil, Trash2, FileSignature, Users } from 'lucide-react';
+
+declare var route: any;
 
 interface Pejabat {
     id: number;
@@ -26,103 +27,108 @@ export default function Index({ pejabat }: PageProps) {
         }
     };
 
+    const activeCount = pejabat.filter(p => p.is_active).length;
+
     return (
         <AppLayout>
             <Head title="Daftar Pejabat" />
 
-            <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <div className="p-4 lg:p-6 space-y-3">
+                {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-                            Daftar Pejabat
-                        </h2>
-                        <p className="text-muted-foreground">
-                            Kelola pejabat penandatangan dokumen (Camat, Sekcam, Kasi).
+                        <h1 className="text-lg font-bold text-slate-900">Daftar Pejabat</h1>
+                        <p className="text-xs text-slate-500">
+                            Penandatangan dokumen · <span className="font-semibold text-emerald-600">{activeCount} aktif</span> dari {pejabat.length}
                         </p>
                     </div>
-                    <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+                    <Button asChild size="sm" className="bg-slate-900 hover:bg-slate-800 text-xs h-8">
                         <Link href={route('kecamatan.pejabat.create')}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Tambah Pejabat
+                            <Plus className="mr-1.5 h-3.5 w-3.5" />
+                            Tambah
                         </Link>
                     </Button>
                 </div>
 
-                <div className="rounded-xl border bg-card text-card-foreground shadow">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Nama & NIP</TableHead>
-                                <TableHead>Jabatan</TableHead>
-                                <TableHead>Tanda Tangan</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Aksi</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {pejabat.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                        Belum ada data pejabat. Silakan tambah data baru.
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                pejabat.map((p) => (
-                                    <TableRow key={p.id}>
-                                        <TableCell>
-                                            <div className="font-medium">{p.nama_pejabat}</div>
-                                            <div className="text-xs text-muted-foreground">NIP. {p.nip}</div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="font-medium">{p.jabatan}</div>
-                                            <div className="text-xs capitalize text-muted-foreground">{p.jenis_pejabat}</div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex gap-2">
-                                                {p.ttd_digital ? (
-                                                    <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                                                        <FileSignature className="mr-1 h-3 w-3" /> TTD Ada
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
-                                                        TTD Kosong
-                                                    </span>
-                                                )}
-                                                {p.stempel && (
-                                                    <span className="inline-flex items-center rounded-full bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10">
-                                                        Stempel Ada
-                                                    </span>
-                                                )}
+                {/* Table */}
+                <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-slate-100 bg-slate-50/80">
+                                    <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">Pejabat</th>
+                                    <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">Jabatan</th>
+                                    <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">Kelengkapan</th>
+                                    <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">Status</th>
+                                    <th className="px-3 py-2 w-20"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {pejabat.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-3 py-12 text-center">
+                                            <div className="text-slate-400">
+                                                <Users className="mx-auto h-8 w-8 mb-2 opacity-40" />
+                                                <p className="text-xs font-medium">Belum ada data pejabat</p>
+                                                <p className="text-[11px] text-slate-400 mt-0.5">Silakan tambah data baru</p>
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            {p.is_active ? (
-                                                <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-                                                    Aktif
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    pejabat.map((p) => (
+                                        <tr key={p.id} className="transition-colors hover:bg-slate-50">
+                                            <td className="px-3 py-2.5">
+                                                <div className="text-xs font-semibold text-slate-900">{p.nama_pejabat}</div>
+                                                <div className="text-[11px] text-slate-400 mt-0.5">NIP. {p.nip}</div>
+                                            </td>
+                                            <td className="px-3 py-2.5">
+                                                <div className="text-xs font-medium text-slate-800">{p.jabatan}</div>
+                                                <div className="text-[11px] capitalize text-slate-400">{p.jenis_pejabat}</div>
+                                            </td>
+                                            <td className="px-3 py-2.5">
+                                                <div className="flex flex-wrap gap-1">
+                                                    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${
+                                                        p.ttd_digital
+                                                            ? 'text-blue-700 bg-blue-50 ring-blue-600/20'
+                                                            : 'text-slate-500 bg-slate-50 ring-slate-200'
+                                                    }`}>
+                                                        <FileSignature className="mr-0.5 h-2.5 w-2.5" />
+                                                        TTD {p.ttd_digital ? '✓' : '✗'}
+                                                    </span>
+                                                    {p.stempel && (
+                                                        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold text-purple-700 bg-purple-50 ring-1 ring-inset ring-purple-600/20">
+                                                            Stempel ✓
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-2.5">
+                                                <span className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${
+                                                    p.is_active
+                                                        ? 'text-emerald-700 bg-emerald-50 ring-emerald-600/20'
+                                                        : 'text-slate-500 bg-slate-50 ring-slate-200'
+                                                }`}>
+                                                    {p.is_active ? 'Aktif' : 'Non-Aktif'}
                                                 </span>
-                                            ) : (
-                                                <span className="inline-flex items-center rounded-md bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-500/10">
-                                                    Non-Aktif
-                                                </span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <Button variant="ghost" size="icon" asChild>
-                                                    <Link href={route('kecamatan.pejabat.edit', p.id)}>
-                                                        <Pencil className="h-4 w-4 text-orange-500" />
-                                                    </Link>
-                                                </Button>
-                                                <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)}>
-                                                    <Trash2 className="h-4 w-4 text-red-500" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
+                                            </td>
+                                            <td className="px-3 py-2.5">
+                                                <div className="flex justify-end gap-0.5">
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
+                                                        <Link href={route('kecamatan.pejabat.edit', p.id)}>
+                                                            <Pencil className="h-3.5 w-3.5 text-slate-500" />
+                                                        </Link>
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(p.id)}>
+                                                        <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </AppLayout>

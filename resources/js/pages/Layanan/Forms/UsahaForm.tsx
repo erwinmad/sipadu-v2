@@ -12,6 +12,7 @@ import { useForm } from '@inertiajs/react';
 import { Upload, X, Info, Store, Target, Hash, MapPin, User } from 'lucide-react';
 import { FormEventHandler } from 'react';
 import { store } from '@/actions/App/Http/Controllers/LayananPublicController';
+import FileUpload from '@/components/file-upload';
 
 interface Desa {
     id: string;
@@ -255,39 +256,5 @@ export default function UsahaForm({ slug, kecamatans, onSuccess }: UsahaFormProp
                 </button>
             </div>
         </form>
-    );
-}
-
-function FileUpload({ label, id, file, onChange, error, required }: { label: string, id: string, file: File | null, onChange: (f: File | null) => void, error?: string, required?: boolean }) {
-    return (
-        <div className="space-y-1">
-            <Label htmlFor={id} className="text-xs font-medium text-gray-600">
-                {label} {required && <span className="text-red-500">*</span>}
-            </Label>
-            {!file ? (
-                <div className="relative">
-                    <input
-                        id={id}
-                        type="file"
-                        accept="image/*,.pdf"
-                        onChange={(e) => onChange(e.target.files?.[0] || null)}
-                        className="peer absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                        required={required}
-                    />
-                    <div className="flex flex-col items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-4 text-center transition-colors peer-hover:border-emerald-500 peer-hover:bg-emerald-50 peer-focus:border-emerald-500 peer-focus:ring-1 peer-focus:ring-emerald-500">
-                        <Upload className="mb-2 h-4 w-4 text-gray-400" />
-                        <span className="text-[10px] text-gray-500">PDF/JPG (Max 2MB)</span>
-                    </div>
-                </div>
-            ) : (
-                <div className="flex items-center justify-between rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2">
-                    <span className="max-w-[120px] truncate text-xs font-medium text-emerald-700">{file.name}</span>
-                    <button type="button" onClick={() => onChange(null)} className="text-emerald-500 hover:text-emerald-700">
-                        <X className="h-4 w-4" />
-                    </button>
-                </div>
-            )}
-             {error && <p className="text-xs text-red-600">{error}</p>}
-        </div>
     );
 }

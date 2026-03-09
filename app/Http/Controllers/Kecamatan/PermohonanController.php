@@ -111,6 +111,7 @@ class PermohonanController extends Controller
         $validated = $request->validate([
             'status' => 'required|in:pending,proses,selesai,ditolak',
             'tanggapan' => 'nullable|string',
+            'no_surat' => 'nullable|required_if:status,selesai|string|max:255',
             'file_hasil' => 'nullable|file|mimes:pdf|max:5120',
         ]);
 
@@ -124,7 +125,11 @@ class PermohonanController extends Controller
                 Storage::disk('public')->delete($permohonan->file_hasil);
             }
             
-            $validated['file_hasil'] = $request->file('file_hasil')->store('hasil/' . date('Y/m'), 'public');
+            $file = $request->file('file_hasil');
+            $date = date('Ymd');
+            $fileName = "hasil-{$jenis}-{$date}-" . uniqid() . ".pdf";
+            
+            $validated['file_hasil'] = $file->storeAs("hasil/{$jenis}/" . date('Y/m'), $fileName, 'public');
         }
 
         // Update with activity logging (causer will be set automatically by LogsActivity trait)
@@ -141,6 +146,112 @@ class PermohonanController extends Controller
             ->log('Status diubah menjadi ' . $validated['status']);
 
         return redirect()->back()->with('success', 'Permohonan berhasil diupdate');
+    }
+
+    public function destroyDocuments($jenis, $token)
+    {
+        $model = $this->getModel($jenis);
+        $permohonan = $model::where('token', $token)->firstOrFail();
+
+        $documentConfigs = [
+            'domisili' => ['ktp', 'kk', 'pengantar'],
+            'sktm' => ['ktp', 'kk', 'pengantar', 'pernyataan'],
+            'nikah' => ['ktp_pria', 'ktp_wanita', 'bukti_pendaftaran'],
+            'usaha' => ['ktp', 'sku'],
+        ];
+
+        $jenisKey = strtolower($jenis);
+        $docsToClear = $documentConfigs[$jenisKey] ?? [];
+
+        $cleared = false;
+        foreach ($docsToClear as $docField) {
+            if ($permohonan->$docField) {
+                Storage::disk('public')->delete($permohonan->$docField);
+                $permohonan->$docField = null;
+                $cleared = true;
+            }
+        }
+
+        if ($cleared) {
+            $permohonan->save();
+            
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($permohonan)
+                ->log('Dokumen persyaratan telah dihapus (Pembersihan Data)');
+                
+            return redirect()->back()->with('success', 'Dokumen persyaratan berhasil dihapus');
+        }
+
+        return redirect()->back()->with('success', 'Tidak ada dokumen yang perlu dihapus');
+    }
+
+    public function previewPdf($jenis, $token)
+    {
+        $model = $this->getModel($jenis);
+        $permohonan = $model::with(['user', 'kecamatan', 'desa'])->where('token', $token)->firstOrFail();
+
+        // Generate QR code pointing to verification URL
+        $verifyUrl = url('/verifikasi/' . $permohonan->token);
+        
+        $qrCodeObj = new \Endroid\QrCode\QrCode(
+            data: $verifyUrl,
+            size: 150,
+            margin: 0
+        );
+        $writer = new \Endroid\QrCode\Writer\PngWriter();
+        $result = $writer->write($qrCodeObj);
+        $qrCode = $result->getDataUri();
+
+        // Extract detail fields dynamically
+        $detail = collect($permohonan->toArray())->except([
+            'id', 'user_id', 'kode_kecamatan', 'kode_desa', 'token', 'status', 
+            'tanggapan', 'file_hasil', 'created_at', 'updated_at', 
+            'user', 'kecamatan', 'desa',
+            // File fields to ignore:
+            'ktp', 'kk', 'pengantar', 'pernyataan', 'ktp_pria', 'ktp_wanita', 'bukti_pendaftaran', 'sku'
+        ])->toArray();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.blanko-surat', [
+            'permohonan' => $permohonan,
+            'jenis' => $jenis,
+            'detail' => $detail,
+            'qrCode' => $qrCode,
+        ]);
+
+        return $pdf->stream("preview-{$jenis}-{$token}.pdf");
+    }
+
+    public function verify($token)
+    {
+        // Find which table has this token. We check all tables since we don't know the jenis from the URL alone.
+        $models = [
+            'Domisili' => \App\Models\Domisili::class,
+            'SKTM' => \App\Models\Sktm::class,
+            'Nikah' => \App\Models\Nikah::class,
+            'Usaha' => \App\Models\Usaha::class,
+        ];
+
+        $permohonan = null;
+        $jenis = '';
+
+        foreach ($models as $name => $class) {
+            $record = $class::with(['user.detailUser', 'kecamatan', 'desa'])->where('token', $token)->first();
+            if ($record) {
+                $permohonan = $record;
+                $jenis = $name;
+                break;
+            }
+        }
+
+        if (!$permohonan) {
+            abort(404, 'Dokumen tidak ditemukan atau tidak valid.');
+        }
+
+        return Inertia::render('Public/Verifikasi', [
+            'permohonan' => $permohonan,
+            'jenis' => $jenis,
+        ]);
     }
 
     private function getModel($jenis)

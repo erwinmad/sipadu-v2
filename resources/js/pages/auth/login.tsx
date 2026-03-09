@@ -27,7 +27,17 @@ export default function Login({
             title="Log in to your account"
             description="Enter your email and password below to log in"
         >
-            <Head title="Log in" />
+            <Head>
+                <title>Masuk ke Akun - SIPADU Kabupaten Cianjur</title>
+                <meta name="description" content="Masuk ke akun SIPADU Anda untuk mengajukan permohonan dokumen kependudukan dan perizinan di Kabupaten Cianjur." />
+                <meta name="robots" content="index, follow" />
+                
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://sipadu.cianjurkab.go.id/login" />
+                <meta property="og:title" content="Masuk ke Akun - SIPADU Kabupaten Cianjur" />
+                <meta property="og:description" content="Portal login SIPADU Kabupaten Cianjur untuk layanan administrasi publik online." />
+                <meta property="og:image" content="https://sipadu.cianjurkab.go.id/logo/sugih-mukti.png" />
+            </Head>
 
             <Form
                 {...store.form()}

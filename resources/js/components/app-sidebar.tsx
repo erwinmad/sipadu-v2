@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FileText, Folder, LayoutGrid, Users } from 'lucide-react';
+import { BookOpen, FileText, Folder, LayoutGrid, Users, UserCheck } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -51,13 +51,23 @@ export function AppSidebar() {
             icon: Users,
         });
         navItems.push({
-            title: 'Layanan',
+            title: 'Permohonan',
+            href: '/admin/permohonan',
+            icon: FileText,
+        });
+        navItems.push({
+            title: 'Kelola Layanan',
             href: '/admin/layanan',
             icon: FileText,
         });
     }
 
     if (isKecamatan) {
+        navItems.push({
+            title: 'Verifikasi Pengguna',
+            href: '/kecamatan/verifikasi-user',
+            icon: UserCheck,
+        });
         navItems.push({
             title: 'Permohonan',
             href: '/kecamatan/permohonan',
@@ -84,7 +94,6 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

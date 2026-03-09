@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
-import { FileText, Clock, CheckCircle2, XCircle, Eye, Filter, Search } from 'lucide-react';
+import { FileText, Clock, CheckCircle2, XCircle, Eye, Search, BarChart3, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 
 interface Permohonan {
@@ -34,173 +34,180 @@ interface PageProps {
     stats: Stats;
 }
 
+const STATUS_CONFIG = {
+    pending: { label: 'Pending', color: 'text-amber-700 bg-amber-50 ring-amber-600/20', icon: Clock },
+    proses: { label: 'Proses', color: 'text-blue-700 bg-blue-50 ring-blue-600/20', icon: FileText },
+    selesai: { label: 'Selesai', color: 'text-emerald-700 bg-emerald-50 ring-emerald-600/20', icon: CheckCircle2 },
+    ditolak: { label: 'Ditolak', color: 'text-red-700 bg-red-50 ring-red-600/20', icon: XCircle },
+} as const;
+
 export default function Index({ permohonan, stats }: PageProps) {
     const [filter, setFilter] = useState<string>('all');
     const [search, setSearch] = useState<string>('');
 
     const filteredData = permohonan.filter(item => {
         const matchFilter = filter === 'all' || item.status === filter;
-        const matchSearch = search === '' || 
+        const matchSearch = search === '' ||
             item.token.toLowerCase().includes(search.toLowerCase()) ||
             item.user.name.toLowerCase().includes(search.toLowerCase()) ||
             item.jenis.toLowerCase().includes(search.toLowerCase());
         return matchFilter && matchSearch;
     });
 
-    const getStatusBadge = (status: string) => {
-        const styles = {
-            pending: 'bg-amber-100 text-amber-700 border-amber-200',
-            proses: 'bg-blue-100 text-blue-700 border-blue-200',
-            selesai: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-            ditolak: 'bg-red-100 text-red-700 border-red-200',
-        };
-        const icons = {
-            pending: Clock,
-            proses: FileText,
-            selesai: CheckCircle2,
-            ditolak: XCircle,
-        };
-        const Icon = icons[status as keyof typeof icons];
-        
-        return (
-            <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-bold uppercase ${styles[status as keyof typeof styles]}`}>
-                <Icon className="h-3 w-3" />
-                {status}
-            </span>
-        );
-    };
-
     const handleView = (jenis: string, token: string) => {
         router.visit(`/kecamatan/permohonan/${jenis.toLowerCase()}/${token}`);
     };
+
+    const completionRate = stats.total > 0 ? Math.round((stats.selesai / stats.total) * 100) : 0;
+
+    const filters = [
+        { key: 'all', label: 'Semua', count: stats.total },
+        { key: 'pending', label: 'Pending', count: stats.pending },
+        { key: 'proses', label: 'Proses', count: stats.proses },
+        { key: 'selesai', label: 'Selesai', count: stats.selesai },
+        { key: 'ditolak', label: 'Ditolak', count: stats.ditolak },
+    ];
 
     return (
         <AppLayout>
             <Head title="Manajemen Permohonan" />
 
-            <div className="p-6">
-                {/* Header */}
-                <div className="mb-6">
-                    <h1 className="text-2xl font-black text-slate-900">Manajemen Permohonan</h1>
-                    <p className="text-sm font-medium text-slate-600">Kelola semua permohonan layanan dari masyarakat</p>
-                </div>
-
-                {/* Stats Cards */}
-                <div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                        <div className="text-2xl font-black text-slate-900">{stats.total}</div>
-                        <div className="text-xs font-bold uppercase tracking-wider text-slate-500">Total</div>
+            <div className="p-4 lg:p-6 space-y-4">
+                {/* Header compact */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div>
+                        <h1 className="text-lg font-bold text-slate-900">Manajemen Permohonan</h1>
+                        <p className="text-xs text-slate-500">Kelola permohonan layanan masyarakat</p>
                     </div>
-                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
-                        <div className="text-2xl font-black text-amber-700">{stats.pending}</div>
-                        <div className="text-xs font-bold uppercase tracking-wider text-amber-600">Pending</div>
-                    </div>
-                    <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 shadow-sm">
-                        <div className="text-2xl font-black text-blue-700">{stats.proses}</div>
-                        <div className="text-xs font-bold uppercase tracking-wider text-blue-600">Proses</div>
-                    </div>
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
-                        <div className="text-2xl font-black text-emerald-700">{stats.selesai}</div>
-                        <div className="text-xs font-bold uppercase tracking-wider text-emerald-600">Selesai</div>
-                    </div>
-                    <div className="rounded-xl border border-red-200 bg-red-50 p-4 shadow-sm">
-                        <div className="text-2xl font-black text-red-700">{stats.ditolak}</div>
-                        <div className="text-xs font-bold uppercase tracking-wider text-red-600">Ditolak</div>
+                    <div className="flex items-center gap-3 text-xs">
+                        <div className="flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1.5 ring-1 ring-emerald-600/20">
+                            <TrendingUp className="h-3 w-3 text-emerald-600" />
+                            <span className="font-semibold text-emerald-700">{completionRate}% selesai</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 rounded-md bg-slate-50 px-2.5 py-1.5 ring-1 ring-slate-200">
+                            <BarChart3 className="h-3 w-3 text-slate-500" />
+                            <span className="font-semibold text-slate-600">{stats.total} total</span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Filters */}
-                <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => setFilter('all')}
-                            className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors ${filter === 'all' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
-                        >
-                            Semua
-                        </button>
-                        <button
-                            onClick={() => setFilter('pending')}
-                            className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors ${filter === 'pending' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
-                        >
-                            Pending
-                        </button>
-                        <button
-                            onClick={() => setFilter('proses')}
-                            className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors ${filter === 'proses' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
-                        >
-                            Proses
-                        </button>
-                        <button
-                            onClick={() => setFilter('selesai')}
-                            className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors ${filter === 'selesai' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
-                        >
-                            Selesai
-                        </button>
+                {/* Stats bar - horizontal & compact */}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {[
+                        { label: 'Pending', value: stats.pending, color: 'border-l-amber-500 bg-amber-50/50' },
+                        { label: 'Proses', value: stats.proses, color: 'border-l-blue-500 bg-blue-50/50' },
+                        { label: 'Selesai', value: stats.selesai, color: 'border-l-emerald-500 bg-emerald-50/50' },
+                        { label: 'Ditolak', value: stats.ditolak, color: 'border-l-red-500 bg-red-50/50' },
+                    ].map((stat) => (
+                        <div key={stat.label} className={`border-l-[3px] rounded-r-md px-3 py-2 ${stat.color}`}>
+                            <div className="text-xl font-bold text-slate-900 leading-none">{stat.value}</div>
+                            <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500 mt-0.5">{stat.label}</div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Filter tabs + Search — single row */}
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex gap-1 overflow-x-auto">
+                        {filters.map(f => (
+                            <button
+                                key={f.key}
+                                onClick={() => setFilter(f.key)}
+                                className={`inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                                    filter === f.key
+                                        ? 'bg-slate-900 text-white shadow-sm'
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                }`}
+                            >
+                                {f.label}
+                                <span className={`rounded px-1 py-px text-[10px] ${filter === f.key ? 'bg-white/20' : 'bg-slate-200/80'}`}>
+                                    {f.count}
+                                </span>
+                            </button>
+                        ))}
                     </div>
 
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                         <input
                             type="text"
                             placeholder="Cari token, nama, jenis..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 py-2 pl-10 pr-4 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 sm:w-64"
+                            className="w-full rounded-md border border-slate-200 bg-white py-1.5 pl-8 pr-3 text-xs focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 sm:w-56"
                         />
                     </div>
                 </div>
 
                 {/* Table */}
-                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
                     <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="border-b border-slate-200 bg-slate-50">
-                                <tr>
-                                    <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Token</th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Jenis</th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Pemohon</th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Desa</th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Tanggal</th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Status</th>
-                                    <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-700">Aksi</th>
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-slate-100 bg-slate-50/80">
+                                    <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">Token</th>
+                                    <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">Jenis</th>
+                                    <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">Pemohon</th>
+                                    <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 hidden md:table-cell">Desa</th>
+                                    <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Tanggal</th>
+                                    <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">Status</th>
+                                    <th className="px-3 py-2 w-10"></th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-200">
+                            <tbody className="divide-y divide-slate-100">
                                 {filteredData.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-500">
-                                            Tidak ada data permohonan
+                                        <td colSpan={7} className="px-3 py-12 text-center">
+                                            <div className="text-slate-400">
+                                                <FileText className="mx-auto h-8 w-8 mb-2 opacity-40" />
+                                                <p className="text-xs font-medium">Tidak ada data permohonan</p>
+                                            </div>
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredData.map((item) => (
-                                        <tr key={`${item.jenis}-${item.id}`} className="transition-colors hover:bg-slate-50">
-                                            <td className="px-4 py-3">
-                                                <span className="font-mono text-sm font-bold text-emerald-600">{item.token}</span>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <span className="text-sm font-bold text-slate-900">{item.jenis}</span>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="text-sm font-medium text-slate-900">{item.user.name}</div>
-                                                <div className="text-xs text-slate-500">{item.user.email}</div>
-                                            </td>
-                                            <td className="px-4 py-3 text-sm text-slate-700">{item.desa.nama_desa}</td>
-                                            <td className="px-4 py-3 text-sm text-slate-700">
-                                                {new Date(item.created_at).toLocaleDateString('id-ID')}
-                                            </td>
-                                            <td className="px-4 py-3">{getStatusBadge(item.status)}</td>
-                                            <td className="px-4 py-3 text-center">
-                                                <button
-                                                    onClick={() => handleView(item.jenis, item.token)}
-                                                    className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
-                                                >
-                                                    <Eye className="h-3 w-3" />
-                                                    Detail
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
+                                    filteredData.map((item) => {
+                                        const statusCfg = STATUS_CONFIG[item.status as keyof typeof STATUS_CONFIG];
+                                        const StatusIcon = statusCfg?.icon || Clock;
+                                        return (
+                                            <tr
+                                                key={`${item.jenis}-${item.id}`}
+                                                onClick={() => handleView(item.jenis, item.token)}
+                                                className="cursor-pointer transition-colors hover:bg-slate-50"
+                                            >
+                                                <td className="px-3 py-2.5">
+                                                    <span className="font-mono text-xs font-bold text-slate-800">{item.token}</span>
+                                                </td>
+                                                <td className="px-3 py-2.5">
+                                                    <span className="inline-flex items-center rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-700">
+                                                        {item.jenis}
+                                                    </span>
+                                                </td>
+                                                <td className="px-3 py-2.5">
+                                                    <div className="text-xs font-medium text-slate-900 leading-tight">{item.user.name}</div>
+                                                    <div className="text-[11px] text-slate-400">{item.user.email}</div>
+                                                </td>
+                                                <td className="px-3 py-2.5 hidden md:table-cell">
+                                                    <span className="text-xs text-slate-600">{item.desa.nama_desa}</span>
+                                                </td>
+                                                <td className="px-3 py-2.5 hidden lg:table-cell">
+                                                    <span className="text-xs text-slate-500">
+                                                        {new Date(item.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                    </span>
+                                                </td>
+                                                <td className="px-3 py-2.5">
+                                                    <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${statusCfg?.color}`}>
+                                                        <StatusIcon className="h-3 w-3" />
+                                                        {item.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-3 py-2.5">
+                                                    <button className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                                                        <Eye className="h-3.5 w-3.5" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>

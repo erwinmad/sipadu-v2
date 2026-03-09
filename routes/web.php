@@ -7,8 +7,8 @@ use Laravel\Fortify\Features;
 Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('home');
 
 // Public layanan routes
-Route::get('/layanan/{slug}', [\App\Http\Controllers\LayananPublicController::class, 'show'])->name('layanan.show')->middleware(['auth', 'profile.complete']);
-Route::post('/layanan/{slug}', [\App\Http\Controllers\LayananPublicController::class, 'store'])->name('layanan.store')->middleware(['auth', 'profile.complete']);
+Route::get('/layanan/{slug}', [\App\Http\Controllers\LayananPublicController::class, 'show'])->name('layanan.show')->middleware(['auth', 'verified', 'profile.complete']);
+Route::post('/layanan/{slug}', [\App\Http\Controllers\LayananPublicController::class, 'store'])->name('layanan.store')->middleware(['auth', 'verified', 'profile.complete']);
 
 // Tracking routes
 Route::get('/tracking', [\App\Http\Controllers\TrackingController::class, 'index'])->name('tracking.index');
@@ -18,10 +18,15 @@ Route::post('/tracking', [\App\Http\Controllers\TrackingController::class, 'show
 Route::get('/auth/google', [\App\Http\Controllers\Auth\SocialiteController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\SocialiteController::class, 'handleGoogleCallback']);
 
+// Proxy Berita Route to fix CORS and hide token
+Route::get('/api/berita-cianjur', [\App\Http\Controllers\Api\BeritaController::class, 'index'])->name('api.berita-cianjur');
+
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Profile completion routes
-    Route::get('/profile/complete', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.complete');
-    Route::post('/profile/complete', [\App\Http\Controllers\ProfileController::class, 'store'])->name('profile.store');
+    Route::get('/verifikasi/{token}', [\App\Http\Controllers\Kecamatan\PermohonanController::class, 'verify'])->name('permohonan.verify');
+
+    // Profile completion routes (diarahkan ke /users/pengguna)
+    Route::get('/users/pengguna', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.complete');
+    Route::post('/users/pengguna', [\App\Http\Controllers\ProfileController::class, 'store'])->name('profile.store');
     
     Route::get('/dashboard', function () {
         $user = auth()->user();
@@ -38,15 +43,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
         Route::resource('pengguna', \App\Http\Controllers\Admin\PenggunaController::class);
         Route::resource('layanan', \App\Http\Controllers\Admin\LayananController::class);
+        Route::get('/permohonan', [\App\Http\Controllers\Admin\PermohonanController::class, 'index'])->name('permohonan.index');
     });
 
     Route::middleware(['role:kecamatan'])->prefix('kecamatan')->name('kecamatan.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Kecamatan\DashboardController::class, 'index'])->name('dashboard');
         
+        // Verifikasi User
+        Route::get('/verifikasi-user', [\App\Http\Controllers\Kecamatan\VerifikasiUserController::class, 'index'])->name('verifikasi-user.index');
+        Route::get('/verifikasi-user/{id}', [\App\Http\Controllers\Kecamatan\VerifikasiUserController::class, 'show'])->name('verifikasi-user.show');
+        Route::post('/verifikasi-user/{id}', [\App\Http\Controllers\Kecamatan\VerifikasiUserController::class, 'verify'])->name('verifikasi-user.verify');
+        
         // Permohonan Management
         Route::get('/permohonan', [\App\Http\Controllers\Kecamatan\PermohonanController::class, 'index'])->name('permohonan.index');
         Route::get('/permohonan/{jenis}/{token}', [\App\Http\Controllers\Kecamatan\PermohonanController::class, 'show'])->name('permohonan.show');
         Route::post('/permohonan/{jenis}/{token}', [\App\Http\Controllers\Kecamatan\PermohonanController::class, 'update'])->name('permohonan.update');
+        Route::delete('/permohonan/{jenis}/{token}/dokumen', [\App\Http\Controllers\Kecamatan\PermohonanController::class, 'destroyDocuments'])->name('permohonan.destroy-documents');
+        Route::get('/permohonan/{jenis}/{token}/preview', [\App\Http\Controllers\Kecamatan\PermohonanController::class, 'previewPdf'])->name('permohonan.preview');
         
         // Profile Kecamatan
         Route::get('/profile', [\App\Http\Controllers\Kecamatan\ProfileKecamatanController::class, 'edit'])->name('profile.edit');
@@ -58,6 +71,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['role:users'])->prefix('users')->name('user.')->group(function () {
         Route::get('/', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/permohonan/{jenis}/{token}', [\App\Http\Controllers\User\PermohonanController::class, 'show'])->name('permohonan.show');
+        Route::delete('/permohonan/{jenis}/{token}/dokumen', [\App\Http\Controllers\User\PermohonanController::class, 'destroyDocuments'])->name('permohonan.destroy-documents');
     });
 });
 

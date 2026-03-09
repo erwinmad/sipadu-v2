@@ -12,10 +12,13 @@ class ProfileController extends Controller
     public function show()
     {
         $kecamatans = Kecamatan::with('desas')->get();
+        $detailUser = auth()->user()->detailUser;
         
         return Inertia::render('Profile/Complete', [
             'kecamatans' => $kecamatans,
-            'detailUser' => auth()->user()->detailUser,
+            'detailUser' => $detailUser,
+            'verificationStatus' => $detailUser?->verification_status ?? null,
+            'verificationNote' => $detailUser?->verification_note ?? null,
         ]);
     }
 
@@ -54,6 +57,16 @@ class ProfileController extends Controller
         }
 
         $validated['user_id'] = auth()->id();
+
+        // Reset verification status to pending when user resubmits
+        // (e.g. after rejection, user can fix data and resubmit)
+        $existingDetail = DetailUser::where('user_id', auth()->id())->first();
+        if ($existingDetail && $existingDetail->verification_status === 'rejected') {
+            $validated['verification_status'] = 'pending';
+            $validated['verification_note'] = null;
+            $validated['verified_by'] = null;
+            $validated['verified_at'] = null;
+        }
 
         DetailUser::updateOrCreate(
             ['user_id' => auth()->id()],
