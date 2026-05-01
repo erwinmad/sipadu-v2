@@ -134,91 +134,105 @@ export default function LayananIndex({ layanans, filters }: PageProps) {
         <AppLayout breadcrumbs={[{ title: 'Layanan', href: '/admin/layanan' }]}>
             <Head title="Manajemen Layanan" />
 
-            <div className="flex flex-col gap-6 p-4">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="p-4 lg:p-6 space-y-6">
+                {/* Header Row */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold">Manajemen Layanan</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Kelola daftar layanan, aktifkan atau nonaktifkan layanan publik.
-                        </p>
+                        <h1 className="text-xl font-bold text-slate-900">Manajemen Layanan Publik</h1>
+                        <p className="text-sm text-slate-500">Kelola ketersediaan, deskripsi, dan status operasional setiap jenis layanan.</p>
                     </div>
+                    <Button onClick={openCreateModal} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-600/20">
+                        <Plus className="mr-2 h-4 w-4" /> Tambah Layanan Baru
+                    </Button>
                 </div>
 
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                     <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2 md:max-w-sm">
+                {/* Filters Row */}
+                <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                    <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2 md:max-w-sm">
                         <div className="relative flex-1">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                             <Input
                                 type="search"
-                                placeholder="Cari layanan..."
-                                className="w-full pl-8"
+                                placeholder="Cari nama layanan atau deskripsi..."
+                                className="w-full pl-9 h-10 bg-white border-slate-200 shadow-sm"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
                         </div>
                     </form>
-                    <Button onClick={openCreateModal}>
-                        <Plus className="mr-2 h-4 w-4" /> Tambah Layanan
-                    </Button>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {layanans.data.map((layanan) => (
-                        <Card key={layanan.id} className="flex flex-col">
-                            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-                                <CardTitle className="text-base font-semibold">
-                                    {layanan.nama_layanan}
-                                </CardTitle>
-                                <div className="flex items-center gap-2">
-                                    <Switch
-                                        checked={layanan.is_active}
-                                        onCheckedChange={(checked) => toggleStatus(layanan, checked)}
-                                    />
-                                    <span className={`text-xs ${layanan.is_active ? 'text-green-600' : 'text-muted-foreground'}`}>
-                                        {layanan.is_active ? 'Aktif' : 'Non-Aktif'}
-                                    </span>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="flex flex-1 flex-col gap-4">
-                                <p className="text-sm text-muted-foreground line-clamp-3 flex-1">
-                                    {layanan.deskripsi || 'Tidak ada deskripsi.'}
-                                </p>
-                                
-                                {!layanan.is_active && layanan.informasi_status && (
-                                     <div className="rounded-md bg-destructive/10 p-2 text-xs text-destructive">
-                                        <strong>Info Non-Aktif:</strong> {layanan.informasi_status}
-                                     </div>
-                                )}
+                {/* Grid of Service Cards */}
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {layanans.data.map((layanan) => {
+                        const isActive = layanan.is_active;
+                        return (
+                            <div key={layanan.id} className={`group relative flex flex-col rounded-xl border transition-all duration-300 ${isActive ? 'bg-white border-slate-200 hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-500/5' : 'bg-slate-50/50 border-slate-200 opacity-80'}`}>
+                                <div className="p-5 flex-1">
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${isActive ? 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                            <FileText className="h-5 w-5" />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Switch
+                                                checked={layanan.is_active}
+                                                onCheckedChange={(checked) => toggleStatus(layanan, checked)}
+                                                className="data-[state=checked]:bg-emerald-500"
+                                            />
+                                        </div>
+                                    </div>
 
-                                <div className="flex items-center justify-between border-t pt-4 mt-auto">
-                                    <div className="text-xs text-muted-foreground font-mono">
-                                        Slug: {layanan.slug}
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => openEditModal(layanan)}
-                                        >
-                                            <Edit2 className="mr-2 h-3.5 w-3.5" /> Edit
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                            onClick={() => confirmDelete(layanan.id)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                    <h3 className={`text-base font-bold mb-1.5 transition-colors ${isActive ? 'text-slate-900 group-hover:text-emerald-700' : 'text-slate-500'}`}>
+                                        {layanan.nama_layanan}
+                                    </h3>
+                                    
+                                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
+                                        {layanan.deskripsi || 'Layanan administrasi resmi untuk masyarakat.'}
+                                    </p>
+
+                                    {!isActive && layanan.informasi_status && (
+                                        <div className="mb-4 rounded-lg bg-red-50/50 border border-red-100 p-2.5">
+                                            <p className="text-[10px] leading-tight text-red-700">
+                                                <span className="font-bold uppercase tracking-wider block mb-1">Status Maintenance:</span>
+                                                {layanan.informasi_status}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-1.5 pt-4 border-t border-slate-100">
+                                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${isActive ? 'bg-emerald-50 text-emerald-600 ring-1 ring-inset ring-emerald-600/20' : 'bg-slate-100 text-slate-500 ring-1 ring-inset ring-slate-500/20'}`}>
+                                            {isActive ? 'Operasional' : 'Non-Aktif'}
+                                        </span>
+                                        <span className="text-[10px] font-mono text-slate-400 ml-auto truncate opacity-60">/{layanan.slug}</span>
                                     </div>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+
+                                <div className="border-t border-slate-100 bg-slate-50/30 px-4 py-2 flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => openEditModal(layanan)}
+                                        className="h-8 text-[11px] font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                    >
+                                        <Edit2 className="mr-1.5 h-3 w-3" /> Sunting
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                        onClick={() => confirmDelete(layanan.id)}
+                                    >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                    </Button>
+                                </div>
+                            </div>
+                        );
+                    })}
                     {layanans.data.length === 0 && (
-                        <div className="col-span-full py-10 text-center text-muted-foreground">
-                            <FileText className="mx-auto h-10 w-10 opacity-20" />
-                            <p className="mt-2">Tidak ada layanan ditemukan.</p>
+                        <div className="col-span-full py-20 text-center rounded-2xl border-2 border-dashed border-slate-200">
+                            <FileText className="mx-auto h-12 w-12 text-slate-200 mb-2" />
+                            <h3 className="text-sm font-bold text-slate-900">Belum ada layanan</h3>
+                            <p className="text-xs text-slate-500">Mulai dengan menambahkan jenis layanan baru.</p>
                         </div>
                     )}
                 </div>

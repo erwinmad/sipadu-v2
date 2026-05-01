@@ -15,7 +15,7 @@ class PermohonanController extends Controller
     public function show($jenis, $token)
     {
         $model = $this->getModel($jenis);
-        $permohonan = $model::with(['kecamatan', 'desa'])
+        $permohonan = $model::with(['kecamatan', 'desa', 'user'])
             ->where('token', $token)
             ->where('user_id', auth()->id()) // Pastikan milik user yang login
             ->firstOrFail();

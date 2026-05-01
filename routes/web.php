@@ -44,6 +44,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('pengguna', \App\Http\Controllers\Admin\PenggunaController::class);
         Route::resource('layanan', \App\Http\Controllers\Admin\LayananController::class);
         Route::get('/permohonan', [\App\Http\Controllers\Admin\PermohonanController::class, 'index'])->name('permohonan.index');
+        
+        // Settings
+        Route::get('/pengaturan', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
+        Route::post('/pengaturan', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
     });
 
     Route::middleware(['role:kecamatan'])->prefix('kecamatan')->name('kecamatan.')->group(function () {

@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import PublicNavbar from '@/components/public-navbar';
+import PublicFooter from '@/components/public-footer';
 import { CheckCircle2, ShieldCheck, MapPin, Calendar, FileText, User, Sparkles, XCircle } from 'lucide-react';
 
 interface Permohonan {
@@ -59,7 +60,7 @@ export default function Verifikasi({ permohonan, jenis }: PageProps) {
             </div>
 
             {/* Navbar */}
-            <PublicNavbar subtitle="Verifikasi Dokumen" />
+            <PublicNavbar subtitle="Verifikasi Dokumen" showAuth={true} />
 
             <div className="relative z-10 flex min-h-[calc(100vh-65px)] items-center justify-center px-4 py-12">
                 <div className="w-full max-w-md">
@@ -135,6 +136,7 @@ export default function Verifikasi({ permohonan, jenis }: PageProps) {
                     </div>
                 </div>
             </div>
+            <PublicFooter />
         </div>
     );
 }

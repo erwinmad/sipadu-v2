@@ -18,14 +18,14 @@ export default function PublicNavbar({
     backLabel = 'Beranda',
     rightContent,
 }: PublicNavbarProps) {
-    const { auth } = usePage<{ auth?: { user: any }; [key: string]: any }>().props;
+    const { auth, app_settings } = usePage<{ auth?: { user: any }; app_settings: any; [key: string]: any }>().props;
 
     return (
         <nav className="border-b border-white/50 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 px-6 py-4 backdrop-blur-md sticky top-0 z-50">
             <div className="mx-auto flex max-w-7xl items-center justify-between">
                 <a href="/" className="flex items-center gap-3" aria-label="Kembali ke Halaman Utama">
                     <img 
-                        src="/logo/sugih-mukti.png" 
+                        src={app_settings?.app_logo || "/logo/sugih-mukti.png"} 
                         alt="Logo Kabupaten Cianjur" 
                         width="36" 
                         height="36" 
@@ -34,7 +34,7 @@ export default function PublicNavbar({
                         fetchPriority="high"
                     />
                     <div>
-                        <h1 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">SIPADU V2</h1>
+                        <h1 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">{app_settings?.app_name || "SIPADU V2"}</h1>
                         <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400">{subtitle}</p>
                     </div>
                 </a>
@@ -53,6 +53,12 @@ export default function PublicNavbar({
                         <>
                             {auth?.user ? (
                                 <>
+                                    <div className="hidden sm:flex items-center gap-1 mr-3 pr-3 border-r border-slate-200 dark:border-slate-800">
+                                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                                            {auth.user.name}
+                                        </span>
+                                    </div>
                                     <a href="/dashboard" className="text-sm font-semibold text-emerald-600 dark:text-emerald-500 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 px-2 py-1">
                                         Dashboard
                                     </a>

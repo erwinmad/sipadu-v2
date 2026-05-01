@@ -227,22 +227,30 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             </div>
                         </div>
                         <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    className="size-10 rounded-full p-1"
-                                >
-                                    <Avatar className="size-8 overflow-hidden rounded-full">
-                                        <AvatarImage
-                                            src={auth.user.avatar}
-                                            alt={auth.user.name}
-                                        />
-                                        <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                                            {getInitials(auth.user.name)}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                </Button>
-                            </DropdownMenuTrigger>
+                            <div className="flex items-center gap-2 mr-1">
+                                <div className="hidden lg:flex flex-col items-end leading-none">
+                                    <span className="text-xs font-bold text-slate-900 dark:text-white">{auth.user.name}</span>
+                                    <span className="text-[10px] text-slate-500 dark:text-slate-400 capitalize">
+                                        {(auth.user as any).roles?.[0] || 'User'}
+                                    </span>
+                                </div>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        className="size-10 rounded-full p-1 h-auto w-auto"
+                                    >
+                                        <Avatar className="size-8 overflow-hidden rounded-full border border-slate-200 dark:border-slate-800">
+                                            <AvatarImage
+                                                src={auth.user.avatar}
+                                                alt={auth.user.name}
+                                            />
+                                            <AvatarFallback className="rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 font-bold text-xs">
+                                                {getInitials(auth.user.name)}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                            </div>
                             <DropdownMenuContent className="w-56" align="end">
                                 <UserMenuContent user={auth.user} />
                             </DropdownMenuContent>

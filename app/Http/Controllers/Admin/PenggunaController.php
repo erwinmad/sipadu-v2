@@ -38,10 +38,33 @@ class PenggunaController extends Controller
         });
         $kecamatans = Kecamatan::all();
 
+        // Stats for cards
+        $stats = [
+            'total' => User::count(),
+            'superadmin' => User::role(\App\Enums\EnumRoles::SUPERADMIN->value)->count(),
+            'kecamatan' => User::role(\App\Enums\EnumRoles::KECAMATAN->value)->count(),
+            'pemohon' => User::role(\App\Enums\EnumRoles::USER->value)->count(),
+        ];
+
+        // Chart data: All Users by Kecamatan
+        $userByKecamatan = User::select('kode_kecamatan')
+            ->whereNotNull('kode_kecamatan')
+            ->with('kecamatan')
+            ->get()
+            ->groupBy('kode_kecamatan')
+            ->map(function ($group) {
+                return [
+                    'name' => $group->first()->kecamatan->nama_kecamatan ?? 'Tidak Diketahui',
+                    'total' => $group->count(),
+                ];
+            })->values();
+
         return Inertia::render('Admin/Pengguna/Index', [
             'users' => $users,
             'roles' => $roles,
             'kecamatans' => $kecamatans,
+            'stats' => $stats,
+            'userByKecamatan' => $userByKecamatan,
             'filters' => $request->only(['search', 'role']),
         ]);
     }

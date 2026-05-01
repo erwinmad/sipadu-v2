@@ -3,6 +3,7 @@ import { ArrowUpRight, FileText, Search, CreditCard, Heart, Baby, FileBadge, Bui
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useState } from 'react';
 import PublicNavbar from '@/components/public-navbar';
+import PublicFooter from '@/components/public-footer';
 import BeritaCianjurkab from '@/components/berita-cianjurkab';
 
 // Import Wayfinder action
@@ -46,7 +47,7 @@ interface PageProps {
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 export default function LandingPage({ layanans, stats, permohonanByJenis, permohonanByKecamatan, tahun, availableYears }: PageProps) {
-    const { auth } = usePage<{ auth?: { user: any }; [key: string]: any }>().props;
+    const { auth, app_settings } = usePage<{ auth?: { user: any }; app_settings: any; [key: string]: any }>().props;
     const [selectedYear, setSelectedYear] = useState(tahun);
 
     const handleYearChange = (year: number) => {
@@ -125,19 +126,19 @@ export default function LandingPage({ layanans, stats, permohonanByJenis, permoh
     return (
         <>
             <Head>
-                <title>SIPADU - Portal Layanan Digital Pemerintah Kabupaten Cianjur</title>
-                <meta name="description" content="SIPADU (Sistem Pelayanan Administrasi Terpadu) Kabupaten Cianjur. Layanan instan untuk pembuatan SKTM, Domisili, Nikah, dan Izin Usaha tanpa antri secara online." />
+                <title>{app_settings?.app_title || "SIPADU - Portal Layanan Digital Pemerintah Kabupaten Cianjur"}</title>
+                <meta name="description" content={app_settings?.app_description || "SIPADU (Sistem Pelayanan Administrasi Terpadu) Kabupaten Cianjur."} />
                 <meta name="keywords" content="SIPADU, Cianjur, Kabupaten Cianjur, SKTM Online, Surat Domisili, Layanan Publik Cianjur, Administrasi Kependudukan, e-Government Cianjur" />
                 <meta name="author" content="Diskominfo Kabupaten Cianjur" />
                 <meta name="robots" content="index, follow" />
                 
                 {/* Open Graph / Facebook */}
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://sipadu.cianjurkab.go.id" />
-                <meta property="og:title" content="SIPADU - Portal Layanan Digital Pemerintah Kabupaten Cianjur" />
-                <meta property="og:description" content="Sistem Pelayanan Administrasi Terpadu. Ajukan dokumen administrasi publik Anda dari rumah dengan mudah, aman, dan tanpa biaya." />
-                <meta property="og:image" content="https://sipadu.cianjurkab.go.id/logo/sugih-mukti.png" />
-                <meta property="og:site_name" content="SIPADU Kabupaten Cianjur" />
+                <meta property="og:url" content={app_settings?.app_url || "https://sipadu.cianjurkab.go.id"} />
+                <meta property="og:title" content={app_settings?.app_title || "SIPADU - Portal Layanan Digital Pemerintah Kabupaten Cianjur"} />
+                <meta property="og:description" content={app_settings?.app_description || "Sistem Pelayanan Administrasi Terpadu."} />
+                <meta property="og:image" content={app_settings?.app_logo || "https://sipadu.cianjurkab.go.id/logo/sugih-mukti.png"} />
+                <meta property="og:site_name" content={app_settings?.app_name || "SIPADU Kabupaten Cianjur"} />
                 
                 {/* Twitter */}
                 <meta property="twitter:card" content="summary_large_image" />
@@ -222,8 +223,8 @@ export default function LandingPage({ layanans, stats, permohonanByJenis, permoh
                                     <div className="relative z-10 flex justify-center">
                                         <div className="relative">
                                             <img
-                                                src="/images/bupati-cianjur.webp"
-                                                alt="dr. Muhammad Wahyu Ferdian - Bupati Cianjur"
+                                                src={app_settings?.app_hero || "/images/bupati-cianjur.webp"}
+                                                alt={app_settings?.app_name || "Bupati Cianjur"}
                                                 className="relative z-10 w-full max-w-[320px] drop-shadow-2xl"
                                                 width="320"
                                                 height="424"
@@ -506,55 +507,32 @@ export default function LandingPage({ layanans, stats, permohonanByJenis, permoh
                         </div>
                     </section>
 
+                    {/* Main Banner if exists */}
+                    {app_settings?.app_banner && (
+                        <section className="px-4 sm:px-6 lg:px-8 pb-12">
+                            <div className="mx-auto max-w-7xl">
+                                <div className="relative h-[200px] sm:h-[300px] w-full overflow-hidden rounded-3xl shadow-2xl group">
+                                    <img 
+                                        src={app_settings.app_banner} 
+                                        alt="Banner Aplikasi" 
+                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-8">
+                                        <div className="text-white">
+                                            <h3 className="text-xl sm:text-2xl font-black mb-1">{app_settings.app_name}</h3>
+                                            <p className="text-xs sm:text-sm font-medium text-white/80">{app_settings.app_title}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
                     {/* Berita Cianjur */}
                     <BeritaCianjurkab />
 
                     {/* Footer */}
-                    <footer className="bg-emerald-950 border-t border-emerald-900 pt-10 pb-6 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay"></div>
-                        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
-                        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-400/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/3 pointer-events-none"></div>
-                        
-                        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-                            <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-8">
-                                <div>
-                                    <img src="/logo/sugih-mukti.png" alt="Logo Cianjur" className="h-10 w-auto mb-4 grayscale opacity-90 brightness-200" />
-                                    <p className="text-sm text-emerald-100/80 max-w-xs leading-relaxed">
-                                        Pelayanan publik yang transparan, akuntabel, dan efisien untuk masyarakat Cianjur.
-                                    </p>
-                                </div>
-                                <div className="flex gap-12">
-                                    <div>
-                                        <h4 className="font-bold text-white mb-3 text-xs uppercase tracking-wider">Layanan</h4>
-                                        <ul className="space-y-2 text-sm text-emerald-200">
-                                            <li><a href="#" className="hover:text-white transition-colors">Kependudukan</a></li>
-                                            <li><a href="#" className="hover:text-white transition-colors">Perizinan</a></li>
-                                            <li><a href="#" className="hover:text-white transition-colors">Kesehatan</a></li>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold text-white mb-3 text-xs uppercase tracking-wider">Bantuan</h4>
-                                        <ul className="space-y-2 text-sm text-emerald-200">
-                                            <li><a href="#" className="hover:text-white transition-colors">Panduan</a></li>
-                                            <li><a href="#" className="hover:text-white transition-colors">F.A.Q</a></li>
-                                            <li><a href="#" className="hover:text-white transition-colors">Kontak</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border-t border-emerald-800/60 pt-5 flex items-center justify-between">
-                                <div className="text-xs font-medium text-emerald-400/60 flex items-center gap-1">
-                                    &copy; {new Date().getFullYear()} SIPADU KAB. CIANJUR. Dibuat dengan 
-                                    <Heart className="h-3 w-3 text-red-500 fill-current mx-0.5" /> 
-                                    oleh Diskominfo Kabupaten Cianjur
-                                </div>
-                                <div className="flex gap-2">
-                                    <div className="h-6 w-6 rounded-full bg-emerald-800/60"></div>
-                                    <div className="h-6 w-6 rounded-full bg-emerald-800/60"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </footer>
+                    <PublicFooter />
                 </div>
             </div>
         </>

@@ -60,6 +60,11 @@ export function AppSidebar() {
             href: '/admin/layanan',
             icon: FileText,
         });
+        navItems.push({
+            title: 'Pengaturan',
+            href: '/admin/pengaturan',
+            icon: BookOpen,
+        });
     }
 
     if (isKecamatan) {

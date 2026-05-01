@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { CheckCircle2, Shield, Search, Sparkles } from 'lucide-react';
 import PublicNavbar from '@/components/public-navbar';
+import PublicFooter from '@/components/public-footer';
 
 interface Layanan {
     id: number;
@@ -30,7 +31,7 @@ export default function Success({ layanan, token }: PageProps) {
                 </div>
 
                 {/* Navbar */}
-                <PublicNavbar />
+                <PublicNavbar showAuth={true} />
 
                 <div className="relative z-10 flex min-h-[calc(100vh-65px)] items-center justify-center px-4 py-12">
                     <div className="w-full max-w-lg">
@@ -89,6 +90,7 @@ export default function Success({ layanan, token }: PageProps) {
                         </div>
                     </div>
                 </div>
+                <PublicFooter />
             </div>
         </>
     );

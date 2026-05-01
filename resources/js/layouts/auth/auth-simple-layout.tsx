@@ -1,6 +1,7 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import PublicNavbar from '@/components/public-navbar';
 
 interface AuthLayoutProps {
     title?: string;
@@ -12,6 +13,8 @@ export default function AuthSimpleLayout({
     title,
     description,
 }: PropsWithChildren<AuthLayoutProps>) {
+    const { app_settings } = usePage<{ app_settings: any; [key: string]: any }>().props;
+
     return (
         <div className="relative min-h-screen bg-[#F8FAFC] font-sans">
             {/* Background Pattern */}
@@ -20,23 +23,12 @@ export default function AuthSimpleLayout({
             </div>
 
             {/* Navbar - Consistent with Landing */}
-            <nav className="fixed left-0 right-0 top-0 z-50 px-4 py-3 lg:px-8">
-                <div className="mx-auto max-w-7xl rounded-xl border border-white/40 bg-white/80 px-5 py-2 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-md">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <img src="/logo/sugih-mukti.png" alt="Logo Cianjur" className="h-8 w-auto drop-shadow-sm" />
-                            <div className="hidden sm:block">
-                                <h1 className="text-sm font-bold tracking-tight text-slate-900 leading-none">SIPADU</h1>
-                                <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-600">Kabupaten Cianjur</p>
-                            </div>
-                        </div>
-                        <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 transition-colors hover:text-emerald-700">
-                            <ArrowLeft className="h-3 w-3" />
-                            Beranda
-                        </Link>
-                    </div>
-                </div>
-            </nav>
+            <PublicNavbar 
+                subtitle="Otentikasi Sistem" 
+                showBack={true} 
+                backHref="/" 
+                backLabel="Kembali ke Beranda" 
+            />
 
             {/* Main Content */}
             <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-24">

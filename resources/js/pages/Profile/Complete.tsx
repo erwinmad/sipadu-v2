@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { FormEventHandler, useRef, useState, useEffect } from 'react';
 import { User, MapPin, GraduationCap, Upload, Info, X, Camera, RefreshCw, CheckCircle2 as CheckIcon, ShieldCheck, ChevronRight, BadgeCheck, Sparkles, Phone, BookOpen, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 import PublicNavbar from '@/components/public-navbar';
+import PublicFooter from '@/components/public-footer';
 
 
 interface Desa {
@@ -95,7 +96,7 @@ export default function Complete({ kecamatans, detailUser, verificationStatus, v
 
             <div className="relative z-10 flex min-h-screen flex-col">
                 {/* Navbar Minimalis */}
-                <PublicNavbar subtitle="Onboarding" />
+                <PublicNavbar subtitle="Onboarding" showAuth={true} />
 
                 <main className="flex-1 px-4 py-12 sm:px-6 lg:px-8">
                     <div className="mx-auto max-w-6xl">
@@ -341,6 +342,7 @@ export default function Complete({ kecamatans, detailUser, verificationStatus, v
                         </div>
                     </div>
                 </main>
+                <PublicFooter />
             </div>
         </div>
     );

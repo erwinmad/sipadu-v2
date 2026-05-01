@@ -2,6 +2,7 @@ import { Head, usePage } from '@inertiajs/react';
 import { ArrowLeft, FileText, Info, Lock, CheckCircle2, Shield, Search, Sparkles, BadgeCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import PublicNavbar from '@/components/public-navbar';
+import PublicFooter from '@/components/public-footer';
 
 // Import Forms
 import DomisiliForm from './Forms/DomisiliForm';
@@ -91,7 +92,7 @@ export default function LayananForm({ layanan, kecamatans, isAuthenticated }: Pa
                 </div>
 
                 {/* Navbar */}
-                <PublicNavbar />
+                <PublicNavbar showAuth={true} />
 
                 <div className="relative z-10 flex min-h-[calc(100vh-65px)] items-center justify-center px-4 py-12">
                     <div className="w-full max-w-lg">
@@ -168,7 +169,7 @@ export default function LayananForm({ layanan, kecamatans, isAuthenticated }: Pa
                 </div>
 
                 {/* Navbar */}
-                <PublicNavbar showBack={true} />
+                <PublicNavbar showBack={true} showAuth={true} />
 
                 <main className="relative z-10 px-4 py-12 sm:px-6 lg:px-8">
                     <div className="mx-auto max-w-6xl">
@@ -283,43 +284,7 @@ export default function LayananForm({ layanan, kecamatans, isAuthenticated }: Pa
                 </main>
 
                 {/* Footer */}
-                <footer className="relative z-10 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pt-10 pb-6">
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-8">
-                            <div>
-                                <img src="/logo/sugih-mukti.png" alt="Logo Cianjur" className="h-10 w-auto mb-4 grayscale opacity-90" />
-                                <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed">
-                                    Pelayanan publik yang transparan, akuntabel, dan efisien untuk masyarakat Cianjur.
-                                </p>
-                            </div>
-                            <div className="flex gap-12">
-                                <div>
-                                    <h4 className="font-bold text-slate-900 dark:text-white mb-3 text-xs uppercase tracking-wider">Layanan</h4>
-                                    <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
-                                        <li><a href="#" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Kependudukan</a></li>
-                                        <li><a href="#" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Perizinan</a></li>
-                                        <li><a href="#" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Kesehatan</a></li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-slate-900 dark:text-white mb-3 text-xs uppercase tracking-wider">Bantuan</h4>
-                                    <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
-                                        <li><a href="#" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Panduan</a></li>
-                                        <li><a href="#" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">F.A.Q</a></li>
-                                        <li><a href="#" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Kontak</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="border-t border-slate-100 dark:border-slate-800 pt-5 flex items-center justify-between">
-                            <div className="text-xs font-medium text-slate-400 dark:text-slate-500">&copy; 2026 SIPADU KAB. CIANJUR</div>
-                            <div className="flex gap-2">
-                                <div className="h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800"></div>
-                                <div className="h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800"></div>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
+                <PublicFooter />
             </div>
         </>
     );

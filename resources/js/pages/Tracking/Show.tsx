@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { ArrowLeft, CheckCircle2, Clock, FileText, AlertCircle, Sparkles, Building2, Calendar, FileBadge, Eye, Download, XCircle, MapPin, User, BadgeCheck } from 'lucide-react';
 import PublicNavbar from '@/components/public-navbar';
+import PublicFooter from '@/components/public-footer';
 
 interface Permohonan {
     id: number;
@@ -57,6 +58,7 @@ export default function TrackingShow({ permohonan, jenis }: PageProps) {
 
                 {/* Navbar */}
                 <PublicNavbar
+                    showAuth={true}
                     rightContent={
                         <>
                             <a href="/tracking" className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors hover:text-emerald-600 dark:hover:text-emerald-400">
@@ -187,6 +189,8 @@ export default function TrackingShow({ permohonan, jenis }: PageProps) {
                         </div>
                     </div>
                 </main>
+
+                <PublicFooter />
             </div>
         </>
     );
